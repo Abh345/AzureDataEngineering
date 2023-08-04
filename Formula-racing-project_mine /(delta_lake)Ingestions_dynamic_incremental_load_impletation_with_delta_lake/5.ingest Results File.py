@@ -114,6 +114,15 @@ results_final_df = results_with_columns_df.drop("statusId")
 # COMMAND ----------
 
 # MAGIC %md
+# MAGIC De-dupe the dataframe
+
+# COMMAND ----------
+
+results_deduped_df = results_final_df.dropDuplicates(['race_id', 'driver_id'])
+
+# COMMAND ----------
+
+# MAGIC %md
 # MAGIC ####handle INcremental load pattern using Delta lake 
 
 # COMMAND ----------
@@ -126,7 +135,7 @@ merge_condition="tgt.result_id=src.result_id AND tgt.race_id = src.race_id"
 
 # COMMAND ----------
 
-merge_delta_data(results_final_df, db_name, table_name, folder_path, merge_condition, partition_column)
+merge_delta_data(results_deduped_df, db_name, table_name, folder_path, merge_condition, partition_column)  #humana me use 
 
 # COMMAND ----------
 
@@ -139,6 +148,42 @@ dbutils.notebook.exit("Success")
 # MAGIC FROM f1_processed.results
 # MAGIC GROUP BY race_id
 # MAGIC ORDER BY race_id DESC;
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ###checking duplicate datas 
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC --way 1 with using HAVING 
+# MAGIC SELECT race_id, driver_id,file_date,COUNT(*) 
+# MAGIC FROM f1_processed.results
+# MAGIC where file_date='2021-03-21'
+# MAGIC GROUP BY race_id,driver_id,file_date
+# MAGIC
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC --way 2 with using HAVING 
+# MAGIC SELECT race_id, driver_id,file_date,COUNT(*) 
+# MAGIC FROM f1_processed.results
+# MAGIC GROUP BY race_id,driver_id,file_date
+# MAGIC HAVING file_date='2021-03-21'
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC select count(driver_id,race_id) from f1_processed.results where file_date='2021-03-21' --this is not good practise we should check more garnular level 
+# MAGIC --like below cell 
+# MAGIC
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC select count(distinct race_id,driver_id) from f1_processed.results where file_date='2021-03-21'
 
 # COMMAND ----------
 

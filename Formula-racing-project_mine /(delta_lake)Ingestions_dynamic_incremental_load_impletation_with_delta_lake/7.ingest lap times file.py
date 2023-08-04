@@ -115,4 +115,23 @@ dbutils.notebook.exit("Success")
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC ###Below is way to get if table contains any Composite PRI keys or not for ex: here race_id,driver_id,lap is compoiste PRI key 
+# MAGIC
+# MAGIC
+
+# COMMAND ----------
+
+final_df
+#Create Temporary View/Table 
+final_df.createOrReplaceTempView("lap_times")
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC select count(*),race_id,driver_id,lap from lap_times
+# MAGIC group by race_id,driver_id,lap
+
+# COMMAND ----------
+
 

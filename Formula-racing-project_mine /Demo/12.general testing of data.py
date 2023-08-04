@@ -13,7 +13,7 @@ df.show(truncate=False)
 
 # COMMAND ----------
 
-df.distinct().show()  #handling with duplicate 
+df.distinct().show()  #handling with duplicate
 
 # COMMAND ----------
 
