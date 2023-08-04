@@ -66,10 +66,6 @@ race_df_schema.printSchema()
 
 # COMMAND ----------
 
-display(race_df_schema)
-
-# COMMAND ----------
-
 # MAGIC %md
 # MAGIC ##### Step 2 - Rename columns and add new columns
 
@@ -84,16 +80,12 @@ drivers_with_columns_df=race_df_schema.withColumnRenamed("driverId", "driver_id"
 
 # COMMAND ----------
 
-display(drivers_with_columns_df)
-
-# COMMAND ----------
-
 drivers_final_df = drivers_with_columns_df.drop(col("url"))
 
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ##### Step 4 - Write to output to processed container in parquet format
+# MAGIC ##### Step 4 - Write to output to processed container in Delta format
 
 # COMMAND ----------
 
@@ -101,9 +93,17 @@ drivers_final_df = drivers_with_columns_df.drop(col("url"))
 
 # COMMAND ----------
 
-#drivers_final_df.write.format("parquet").mode('overwrite').save(path_to_write,header='True')
-drivers_final_df.write.mode("overwrite").format("parquet").saveAsTable("f1_processed.drivers")
+drivers_final_df.write.mode("overwrite").format("delta").saveAsTable("f1_processed.drivers")
 
 # COMMAND ----------
 
 dbutils.notebook.exit("Success")
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC SELECT * FROM f1_processed.drivers
+
+# COMMAND ----------
+
+

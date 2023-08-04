@@ -43,10 +43,6 @@ qualifying_df=spark.read.format("json").schema(qualifying_schema).load(path,head
 
 # COMMAND ----------
 
-display(qualifying_df)
-
-# COMMAND ----------
-
 # MAGIC %md
 # MAGIC ##### Step 2 - Rename columns and add new columns
 # MAGIC 1. Rename qualifyingId, driverId, constructorId and raceId
@@ -78,7 +74,7 @@ path_to_write=f"{processed_folder_path}/qualifying"
 
 # COMMAND ----------
 
-overwrite_partition(final_df, 'f1_processed', 'qualifying', 'race_id')
+#overwrite_partition(final_df, 'f1_processed', 'qualifying', 'race_id')
 
 # COMMAND ----------
 
@@ -92,9 +88,33 @@ overwrite_partition(final_df, 'f1_processed', 'qualifying', 'race_id')
 
 # COMMAND ----------
 
-#df=spark.read.format("parquet").load(path=path_to_write,header='True')
-#display(df)
+# MAGIC %md
+# MAGIC ####handle INcremental load pattern using Delta lake 
+
+# COMMAND ----------
+
+db_name="f1_processed"
+table_name="qualifying"
+folder_path=processed_folder_path
+partition_column="race_id"
+merge_condition="tgt.qualify_id = src.qualify_id AND tgt.race_id = src.race_id"
+
+# COMMAND ----------
+
+merge_delta_data(final_df, 'f1_processed', 'qualifying', processed_folder_path, merge_condition, 'race_id')
 
 # COMMAND ----------
 
 dbutils.notebook.exit("Success")
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC SELECT race_id, COUNT(1) 
+# MAGIC FROM f1_processed.qualifying
+# MAGIC GROUP BY race_id
+# MAGIC ORDER BY race_id DESC;
+
+# COMMAND ----------
+
+

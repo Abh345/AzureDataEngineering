@@ -41,10 +41,6 @@ pit_stops_df=spark.read.format("json").schema(pit_stops_schema).load(path,header
 
 # COMMAND ----------
 
-display(pit_stops_df)
-
-# COMMAND ----------
-
 # MAGIC %md
 # MAGIC ##### Step 2 - Rename columns and add new columns
 # MAGIC 1. Rename driverId and raceId
@@ -69,7 +65,7 @@ final_df = pit_stops_df.withColumnRenamed("driverId", "driver_id") \
 
 # COMMAND ----------
 
-overwrite_partition(final_df, 'f1_processed', 'pit_stops', 'race_id')
+#overwrite_partition(final_df, 'f1_processed', 'pit_stops', 'race_id')
 
 # COMMAND ----------
 
@@ -84,16 +80,19 @@ overwrite_partition(final_df, 'f1_processed', 'pit_stops', 'race_id')
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ###Reading dataframe for testing 
+# MAGIC ####handle INcremental load pattern using Delta lake 
 
 # COMMAND ----------
 
-
-#df=spark.read.format("parquet").load(path=path_to_write,header='True')
+db_name="f1_processed"
+table_name="pit_stops"
+folder_path=processed_folder_path
+partition_column="race_id"
+merge_condition="tgt.race_id = src.race_id AND tgt.driver_id = src.driver_id AND tgt.stop = src.stop"
 
 # COMMAND ----------
 
-#display(df)
+merge_delta_data(final_df, db_name, table_name, folder_path, merge_condition, partition_column)
 
 # COMMAND ----------
 

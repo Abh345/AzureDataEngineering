@@ -65,10 +65,6 @@ constructor_dropped_df=constructors_df_schema.drop('url')
 
 # COMMAND ----------
 
-constructor_dropped_df.show()
-
-# COMMAND ----------
-
 constructor_final_df = constructor_dropped_df.withColumnRenamed("constructorId", "constructor_id") \
                                              .withColumnRenamed("constructorRef", "constructor_ref") \
                                              .withColumn("ingestion_date", current_timestamp()) \
@@ -79,7 +75,7 @@ constructor_final_df = constructor_dropped_df.withColumnRenamed("constructorId",
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ##### Step 4 Write output to parquet file
+# MAGIC ##### Step 4 Write output to Delta format
 
 # COMMAND ----------
 
@@ -87,9 +83,17 @@ constructor_final_df = constructor_dropped_df.withColumnRenamed("constructorId",
 
 # COMMAND ----------
 
-#constructor_final_df.write.format("parquet").mode('overwrite').save(path_to_write,header='True')
-constructor_final_df.write.mode("overwrite").format("parquet").saveAsTable("f1_processed.constructors")
+constructor_final_df.write.mode("overwrite").format("delta").saveAsTable("f1_processed.constructors")
 
 # COMMAND ----------
 
 dbutils.notebook.exit("Success")
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC SELECT * FROM f1_processed.constructors;
+
+# COMMAND ----------
+
+

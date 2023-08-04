@@ -122,7 +122,7 @@ display(race_final_df)
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC #####writing data into adls in parquet using partition by 
+# MAGIC #####writing data into adls in Delta format using partition by 
 
 # COMMAND ----------
 
@@ -130,13 +130,7 @@ display(race_final_df)
 
 # COMMAND ----------
 
-#race_final_df.write.format("parquet").mode('overwrite').partitionBy('race_year').save(path_to_write,header='True')
-race_final_df.write.mode("overwrite").partitionBy('race_year').format("parquet").saveAsTable("f1_processed.races")
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC ##### reading specific  year data like 2009
+race_final_df.write.mode("overwrite").partitionBy('race_year').format("delta").saveAsTable("f1_processed.races")
 
 # COMMAND ----------
 

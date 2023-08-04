@@ -114,12 +114,7 @@ results_final_df = results_with_columns_df.drop("statusId")
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ###Reading dataframe for testing 
-
-# COMMAND ----------
-
-
-#df=spark.read.format("parquet").load(path=path_to_write,header='True')
+# MAGIC ####handle INcremental load pattern using Delta lake 
 
 # COMMAND ----------
 
@@ -127,7 +122,7 @@ db_name="f1_processed"
 table_name="results"
 folder_path=processed_folder_path
 partition_column="race_id"
-merge_condition="tgt.result_id=src.result_id"
+merge_condition="tgt.result_id=src.result_id AND tgt.race_id = src.race_id" 
 
 # COMMAND ----------
 

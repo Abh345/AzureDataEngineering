@@ -72,7 +72,7 @@ path_to_write=f"{processed_folder_path}/lap_times"
 
 # COMMAND ----------
 
-overwrite_partition(final_df, 'f1_processed', 'lap_times', 'race_id')
+#overwrite_partition(final_df, 'f1_processed', 'lap_times', 'race_id')
 
 # COMMAND ----------
 
@@ -87,16 +87,19 @@ overwrite_partition(final_df, 'f1_processed', 'lap_times', 'race_id')
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ###Reading dataframe for testing 
+# MAGIC ####handle INcremental load pattern using Delta lake 
 
 # COMMAND ----------
 
-
-df=spark.read.format("parquet").load(path=path_to_write,header='True')
+db_name="f1_processed"
+table_name="lap_times"
+folder_path=processed_folder_path
+partition_column="race_id"
+merge_condition="tgt.race_id = src.race_id AND tgt.driver_id = src.driver_id AND tgt.lap = src.lap"
 
 # COMMAND ----------
 
-display(df)
+merge_delta_data(final_df, db_name, table_name, folder_path, merge_condition, partition_column)
 
 # COMMAND ----------
 

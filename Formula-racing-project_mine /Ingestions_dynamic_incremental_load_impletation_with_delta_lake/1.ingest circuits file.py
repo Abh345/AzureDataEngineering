@@ -110,7 +110,7 @@ display(circuits_final_df)
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ##### Step 5 - Write data to datalake as parquet
+# MAGIC ##### Step 5 - Write data to delta_lake as parquet
 
 # COMMAND ----------
 
@@ -118,11 +118,7 @@ display(circuits_final_df)
 
 # COMMAND ----------
 
-#circuits_final_df.write.format("parquet").mode('overwrite').save(path_to_write,header='True')
-circuits_final_df.write.mode("overwrite").format("parquet").saveAsTable("f1_processed.circuits") #managed table f1_processed database we have to create as metioned on 2.Ingest to managed tables for processed layer notebook 
-
-#External tables 
-#circuits_final_df.write.mode("overwrite").format("parquet").option("path","/user/hive/warehouse/circuits").saveAsTable("f1_processed.circuits")
+circuits_final_df.write.mode("overwrite").format("delta").saveAsTable("f1_processed.circuits")
 
 # COMMAND ----------
 
