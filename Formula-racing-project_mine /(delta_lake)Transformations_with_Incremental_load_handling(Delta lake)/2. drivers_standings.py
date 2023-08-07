@@ -30,7 +30,7 @@ race_results_df=spark.read.format("delta").load(f"{presentation_folder_path}/rac
 
 # COMMAND ----------
 
-#this will give me unique list containing unique race_years
+#this will give me unique list containing unique race_years.prevent re procssing of already processed data 
 list_year=race_results_df.select("race_year").distinct().collect()
 race_results_list=[]
 for i in list_year:
@@ -55,7 +55,7 @@ final_df=driver_standing_df.withColumn("Rank",rank().over(windowPartition))
 
 # COMMAND ----------
 
-#display(final_df)
+display(final_df)
 
 # COMMAND ----------
 
@@ -82,6 +82,10 @@ merge_condition="tgt.driver_name=src.driver_name AND tgt.race_year = src.race_ye
 # COMMAND ----------
 
 merge_delta_data(final_df, db_name, table_name, folder_path, merge_condition, partition_column)
+
+# COMMAND ----------
+
+dbutils.notebook.exit("Success")
 
 # COMMAND ----------
 
