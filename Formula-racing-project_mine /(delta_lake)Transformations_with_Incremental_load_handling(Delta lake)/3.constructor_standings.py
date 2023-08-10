@@ -12,7 +12,7 @@ from pyspark.sql.functions import *
 
 # COMMAND ----------
 
-race_results_df=spark.read.parquet(f"{presentation_folder_path}/race_results")
+race_results_df=spark.read.format("delta").load(f"{presentation_folder_path}/race_results")
 
 # COMMAND ----------
 
@@ -50,9 +50,34 @@ final_df=team_standing_df.withColumn("Rank",rank().over(windowPartition))
 
 # COMMAND ----------
 
-overwrite_partition(final_df, 'f1_presentation', 'constructor_standings', 'race_year')
+#overwrite_partition(final_df, 'f1_presentation', 'constructor_standings', 'race_year')
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ###Writing data in INC. delta format 
+
+# COMMAND ----------
+
+db_name="f1_presentation"
+table_name="constructor_standings"
+folder_path=presentation_folder_path
+partition_column="race_year"
+merge_condition="tgt.team=src.team AND tgt.race_year = src.race_year" 
+
+# COMMAND ----------
+
+merge_delta_data(final_df, db_name, table_name, folder_path, merge_condition, partition_column)
+
+# COMMAND ----------
+
+dbutils.notebook.exit("Success")
 
 # COMMAND ----------
 
 # MAGIC %sql
 # MAGIC select * from f1_presentation.constructor_standings;
+
+# COMMAND ----------
+
+
