@@ -1,0 +1,25 @@
+{
+	"name": "trigger_ingest_ecdc_data",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Stopped",
+		"pipelines": [],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Day",
+				"interval": 1,
+				"startTime": "2023-08-10T00:27:00",
+				"timeZone": "India Standard Time",
+				"schedule": {
+					"minutes": [
+						28
+					],
+					"hours": [
+						0
+					]
+				}
+			}
+		}
+	}
+}
