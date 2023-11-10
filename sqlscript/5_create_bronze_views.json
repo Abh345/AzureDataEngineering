@@ -1,0 +1,20 @@
+{
+	"name": "5_create_bronze_views",
+	"properties": {
+		"folder": {
+			"name": "nyc_taxi/ldw"
+		},
+		"content": {
+			"query": "--Views \n--way-1\n/*if  EXISTS(select * from sys.views where name='xyz')\n   DROP VIEW xyz\n;\n--way-2\nDROP VIEW IF EXISTS xyz;\n*/\nuse nyc_taxi_ldw\nGO\n/*\nIF EXISTS (SELECT * from sys.views where name ='vw_rate_code')\n    DROP VIEW bronze.vw_rate_code */\nIF OBJECT_ID('bronze.vw_rate_code') is not null \n       DROP VIEW bronze.vw_rate_code\nGO\n--DROP VIEW IF EXISTS bronze.vw_rate_code\n--GO\nCREATE VIEW bronze.vw_rate_code\n    AS\n    SELECT * FROM\n        OPENROWSET(\n         BULK 'raw/rate_code.json',\n            DATA_SOURCE='nyc_taxi_src',\n            FORMAT = 'CSV',\n            PARSER_VERSION = '1.0',\n        -- HEADER_ROW = TRUE,\n            FIELDTERMINATOR ='0x0b',\n            FIELDQUOTE = '0x0b',\n            ROWTERMINATOR='0x0b'\n        ) \n        with (jsondoc nvarchar(max)\n        )\n        as [result]\n        CROSS APPLY OPENJSON(jsondoc)\n        with (\n            rate_code_id SMALLINT,\n            rate_code VARCHAR(20)\n        )\nGO\nselect rate_code_id,rate_code from bronze.vw_rate_code\nGO\n\n--create view for payment_type json\n\nDROP VIEW IF EXISTS bronze.vw_payment_type\nGO\nCREATE VIEW bronze.vw_payment_type\n    AS\nSELECT payment_type_1,descriptions FROM\n    OPENROWSET(\n        BULK 'raw/payment_type.json',\n        DATA_SOURCE='nyc_taxi_src',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '1.0',\n       -- HEADER_ROW = TRUE,\n        FIELDTERMINATOR ='0x0b',\n        FIELDQUOTE = '0x0b',\n        ROWTERMINATOR='0x0a'\n    ) \n    with (jsondoc nvarchar(max)\n    )\n    as [result]\n    CROSS APPLY OPENJSON(jsondoc)\n    WITH(\n          payment_type_1 SMALLINT  '$.payment_type' ,\n         descriptions VARCHAR(20)  '$.payment_type_desc'  --rename column like this \n    )\nGO\nselect * from bronze.vw_payment_type\nGO\n--Partions puring\n--csv format \n\n\n\n--PARQUET format \nDROP VIEW IF EXISTS bronze.vw_trip_data_green_parquet\nGO\nCREATE VIEW bronze.vw_trip_data_green_parquet\nAS\nSELECT\n    *,result.filepath(1) as year,result.filepath(2) as month\nFROM\n    OPENROWSET(\n        BULK 'raw/trip_data_green_parquet/year=*/month=*/**',\n        DATA_SOURCE='nyc_taxi_src',\n        FORMAT = 'PARQUET'\n    ) AS [result]\nGO\nselect count(*) from bronze.vw_trip_data_green_parquet where year=2020 and month =01\nGO\n\n--delta format \nDROP VIEW IF EXISTS bronze.vw_trip_data_green_delta\nGO\nCREATE VIEW bronze.vw_trip_data_green_delta\nAS\nSELECT\n    *\nFROM\n    OPENROWSET(\n        BULK 'raw/trip_data_green_delta/',\n        DATA_SOURCE='nyc_taxi_src',\n        FORMAT = 'DELTA'  ---DELTA auto generates and add partions columns to table \n    ) AS [result]\nGO\n\nselect  count(*) from bronze.vw_trip_data_green_delta\nwhere year=2020 and month =01\nGO\n\n--csv format \n\nDROP VIEW IF EXISTS bronze.vw_trip_data_green_csv\nGO\nCREATE VIEW bronze.vw_trip_data_green_csv\nAS\nSELECT\n    *,result.filepath(1) as year,result.filepath(2) as month\nFROM\n    OPENROWSET(\n        BULK 'raw/trip_data_green_csv/year=*/month=*/**',\n        DATA_SOURCE='nyc_taxi_src',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',  -- manadatory parameter\n        HEADER_ROW=TRUE          -- manadatory parameter\n    ) AS [result]\nGO\nselect count(*) from bronze.vw_trip_data_green_csv where year=2020 and month =01\nGO\n\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_ldw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

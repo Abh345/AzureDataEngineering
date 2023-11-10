@@ -1,0 +1,20 @@
+{
+	"name": "10_usp_create_silver_vendor",
+	"properties": {
+		"folder": {
+			"name": "nyc_taxi/ldw/user_defined_stored_procedure"
+		},
+		"content": {
+			"query": "use nyc_taxi_ldw\nGO\nCREATE OR ALTER PROCEDURE silver.usp_vendor\nAS\nBEGIN\n    if OBJECT_ID('silver.vendor') is not null\n        DROP EXTERNAL TABLE silver.vendor;\n    CREATE EXTERNAL TABLE silver.vendor\n        WITH\n        (\n            data_source=nyc_taxi_src,\n            location='silver/vendor',\n            file_format=parquet_file_format,\n        )\n    AS\n    select * FROM bronze.vendor;\nEND",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_ldw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

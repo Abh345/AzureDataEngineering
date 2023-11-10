@@ -1,0 +1,20 @@
+{
+	"name": "3_usp_gold_trip_data_green_business_req_1",
+	"properties": {
+		"folder": {
+			"name": "nyc_taxi/ldw/user_defined_stored_procedure"
+		},
+		"content": {
+			"query": "use nyc_taxi_ldw\nGO\nCREATE or ALTER PROCEDURE gold.usp_gold_trip_data_green\n@year VARCHAR(4),\n@month VARCHAR(2)\nAS \nBEGIN\n    DECLARE @create_sql_stmt NVARCHAR(MAX),\n            @drop_sql_stmt NVARCHAR(MAX)\n    \n    SET @create_sql_stmt='CREATE EXTERNAL TABLE gold.trip_data_green_'+@year+'_'+@month+'\nWITH\n    (\n        data_source=nyc_taxi_src,\n        location=''gold/trip_data_green/year='+@year+'/month='+@month+''',\n        file_format=parquet_file_format,\n    )\nAS\nwith cte AS\n(    \nselect j1.payment_type,j1.borough, j1.trip_date,j1.year,j1.month,j2.day_name,\ncase when day_name in(''Sunday'',''Saturday'') then ''Y'' else ''N'' end as trip_day_weekend_ind from \n(\nselect payment_type,borough,CAST(lpep_pickup_datetime AS DATE) as trip_date,year,month FROM\n(SELECT * FROM silver.vw_silver_trip_data_green) as t1\nJOIN\n(select * from silver.taxi_zone) as d\non t1.pu_location_id=d.location_id\n) as j1 \ninner join \n(select year as y,month as m, day_name,date from silver.calendar) as j2 \non j1.trip_date=j2.date\n)\n select borough,day_name,trip_date,year,month,\n count(*) as total_trip,\n count(case when payment_type=1 then 1 end) as total_credit_card_trips,\n count(case when payment_type=2 then 1 end) as total_cash_trips,\n trip_day_weekend_ind\nfrom cte\nwhere payment_type=1 or payment_type=2  \ngroup by borough,day_name,trip_date,year,month,trip_day_weekend_ind\nhaving year='+@year+'and month ='+@month\nEXEC sp_executesql @create_sql_stmt\n\nSET @drop_sql_stmt='DROP EXTERNAL TABLE gold.trip_data_green_'+@year+'_'+@month;\nEXEC sp_executesql @drop_sql_stmt\nEND\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_ldw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

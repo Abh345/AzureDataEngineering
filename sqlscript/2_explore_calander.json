@@ -1,0 +1,20 @@
+{
+	"name": "2_explore_calander",
+	"properties": {
+		"folder": {
+			"name": "nyc_taxi/discovery"
+		},
+		"content": {
+			"query": "use nyc_taxi_discovery;\nSELECT\n    * \nFROM\n    OPENROWSET(\n        BULK 'calendar.csv',\n        DATA_SOURCE='nyc_taxi_data_raw',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        FIRSTROW = 2,\n        FIELDTERMINATOR=',',\n        ROWTERMINATOR='\\n'\n    ) \nWITH (\n           date_key INT 1,\n           date DATE 2,\n           year SMALLINT 3,\n           month TINYINT 4,\n           day TINYINT 5,\n           day_name VARCHAR(20) 6,\n           day_of_year SMALLINT 7,\n           week_of_month TINYINT 8,\n           week_of_year TINYINT 9,\n           month_name VARCHAR(20) 10,\n           year_month INT 11,\n           year_week INT 12\n         )AS [results]\n\n--checking datatype detected by synapse before explicit with clause datatype defination \n--using strored procedure .here we will see datatypes allocated by synapse only .\nEXEC sp_describe_first_result_set N'\nSELECT\n    * \nFROM\n    OPENROWSET(\n        BULK ''calendar.csv'',\n        DATA_SOURCE=''nyc_taxi_data_raw'',\n        FORMAT = ''CSV'',\n        PARSER_VERSION = ''2.0'',\n        FIRSTROW = 2,\n        FIELDTERMINATOR='','',\n        ROWTERMINATOR=''\\n''\n    ) as r'\n\n\n--change dataType using cast() instead of with clause\nEXEC sp_describe_first_result_set N'\nSELECT\n    CAST(date_key as int) as x,cast(date as date) as y\nFROM\n    OPENROWSET(\n        BULK ''calendar.csv'',\n        DATA_SOURCE=''nyc_taxi_data_raw'',\n        FORMAT = ''CSV'',\n        PARSER_VERSION = ''2.0'',\n        HEADER_ROW = TRUE,\n        FIELDTERMINATOR='','',\n        ROWTERMINATOR=''\\n''\n    ) as r'\n\n\n\n\n\n\n\n\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_discovery",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

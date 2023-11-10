@@ -1,0 +1,20 @@
+{
+	"name": "12_create_silver_trip_data_green",
+	"properties": {
+		"folder": {
+			"name": "nyc_taxi/ldw"
+		},
+		"content": {
+			"query": "use nyc_taxi_ldw\nGO\n--this is not effective for partioned datas so in that case we should use SPARK POOL .\n--here CETAS will not give ability to write data into seperate partions or into diff folders.\n/*if OBJECT_ID('silver.trip_data_green_csv') is not null\n   DROP EXTERNAL TABLE silver.trip_data_green_csv_2020_01  \nGO*/\n--CREATE EXTERNAL TABLE silver.trip_data_green_csv\n    --WITH\n    --(\n        --data_source=nyc_taxi_src,\n      --  location='silver/trip_data_green_csv',\n    --    file_format=parquet_file_format,\n  --  )\n--AS\n--select * FROM bronze.vw_trip_data_green_csv\n--GO\n--select top 10 * from silver.trip_data_green_csv\n--GO\n\n\nEXEC silver.usp_sliver_trip_data_green '2020','01'\nEXEC silver.usp_sliver_trip_data_green '2020','02'\nEXEC silver.usp_sliver_trip_data_green '2020','03'\nEXEC silver.usp_sliver_trip_data_green '2020','04'\nEXEC silver.usp_sliver_trip_data_green '2020','05'\nEXEC silver.usp_sliver_trip_data_green '2020','06'\nEXEC silver.usp_sliver_trip_data_green '2020','07'\nEXEC silver.usp_sliver_trip_data_green '2020','08'\nEXEC silver.usp_sliver_trip_data_green '2020','09'\nEXEC silver.usp_sliver_trip_data_green '2020','10'\nEXEC silver.usp_sliver_trip_data_green '2020','11'\nEXEC silver.usp_sliver_trip_data_green '2020','12'\nEXEC silver.usp_sliver_trip_data_green '2021','01'\nEXEC silver.usp_sliver_trip_data_green '2021','02'\nEXEC silver.usp_sliver_trip_data_green '2021','03'\nEXEC silver.usp_sliver_trip_data_green '2021','04'\nEXEC silver.usp_sliver_trip_data_green '2021','05'\nEXEC silver.usp_sliver_trip_data_green '2021','06'\nEXEC silver.usp_sliver_trip_data_green '2021','07'\n\n\n\n\n\n\n\n\n\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_ldw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

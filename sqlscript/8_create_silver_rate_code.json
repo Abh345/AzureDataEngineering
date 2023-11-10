@@ -1,0 +1,20 @@
+{
+	"name": "8_create_silver_rate_code",
+	"properties": {
+		"folder": {
+			"name": "nyc_taxi/ldw"
+		},
+		"content": {
+			"query": "use nyc_taxi_ldw\nGo\nif OBJECT_ID('silver.rate_code') is not null\n    DROP EXTERNAL TABLE silver.rate_code\nGO\nCREATE EXTERNAL TABLE silver.rate_code\n    WITH\n    (\n        data_source=nyc_taxi_src,\n        location='silver/rate_code',\n        file_format=parquet_file_format,\n    )\nAS\nselect * FROM bronze.vw_rate_code\nGO\nselect * from silver.rate_code\nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_ldw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

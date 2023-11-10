@@ -1,0 +1,20 @@
+{
+	"name": "13_create_sliver_views_trip_data_green",
+	"properties": {
+		"folder": {
+			"name": "nyc_taxi/ldw"
+		},
+		"content": {
+			"query": "USE nyc_taxi_ldw;\nDROP VIEW IF EXISTS silver.vw_silver_trip_data_green\nGO\nCREATE VIEW silver.vw_silver_trip_data_green\nAS\nSELECT\n    VendorID as vendor_id  ,  \n           lpep_pickup_datetime  ,\n           lpep_dropoff_datetime  ,\n           store_and_fwd_flag ,\n           RatecodeID as rate_code_id,\n           PULocationID as pu_location_id,  \n           DOLocationID as do_location_id,\n           passenger_count ,\n           trip_distance ,\n           fare_amount ,\n           extra ,\n           mta_tax ,\n           tip_amount ,\n           tolls_amount ,\n           ehail_fee ,\n           improvement_surcharge ,\n           total_amount ,\n           payment_type ,\n           trip_type ,\n           congestion_surcharge,result.filepath(1) as year,result.filepath(2) as month\nFROM\n    OPENROWSET(\n        BULK 'silver/trip_data_green_csv/year=*/month=*/**',\n        DATA_SOURCE='nyc_taxi_src',\n        FORMAT = 'PARQUET'\n    ) AS [result]\nGO\n--cross check records with bronze layer \nselect top 10 *  from silver.vw_silver_trip_data_green WHERE year=2020 and month =01;\n--select count(*) from bronze.vw_trip_data_green_csv  WHERE year=2020 and month =01;",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_ldw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

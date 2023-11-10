@@ -1,0 +1,20 @@
+{
+	"name": "3_explore_vendor",
+	"properties": {
+		"folder": {
+			"name": "nyc_taxi/discovery"
+		},
+		"content": {
+			"query": "use nyc_taxi_discovery;\n--issue\nSELECT * \nFROM\n    OPENROWSET(\n        BULK 'vendor_unquoted.csv',\n        DATA_SOURCE='nyc_taxi_data_raw',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW = TRUE,\n        FIELDTERMINATOR=',',\n        ROWTERMINATOR='\\n'\n    ) as [result];\n\n\n--running stored procedure\nEXEC sp_describe_first_result_set N'\nSELECT * \nFROM\n    OPENROWSET(\n        BULK ''vendor_unquoted.csv'',\n        DATA_SOURCE=''nyc_taxi_data_raw'',\n        FORMAT = ''CSV'',\n        PARSER_VERSION = ''2.0'',\n        HEADER_ROW = TRUE,\n        FIELDTERMINATOR='','',\n        ROWTERMINATOR=''\\n''\n    ) as [result];\n'\n\n--Solution 1 and 2: using escaped and quotes like(\"\")--double quotes \n\n--way-1\nSELECT\n    * \nFROM\n    OPENROWSET(\n        BULK 'vendor_escaped.csv',\n        DATA_SOURCE='nyc_taxi_data_raw',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW = TRUE,\n        FIELDTERMINATOR=',',\n        ROWTERMINATOR='\\n',\n        ESCAPECHAR='*'  --ESCAPECHAR='\\*'\n    ) as [result];\n--way-2\n\nSELECT\n    * \nFROM\n    OPENROWSET(\n        BULK 'vendor.csv',  --double quote applied\n        DATA_SOURCE='nyc_taxi_data_raw',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW = TRUE,\n        FIELDTERMINATOR=',',\n        ROWTERMINATOR='\\n',\n        FIELDQUOTE='\"'\n    ) as [result];",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_discovery",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

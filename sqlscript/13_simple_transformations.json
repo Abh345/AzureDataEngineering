@@ -1,0 +1,20 @@
+{
+	"name": "13_simple_transformations",
+	"properties": {
+		"folder": {
+			"name": "nyc_taxi/discovery"
+		},
+		"content": {
+			"query": "use nyc_taxi_discovery;\n--Table 1\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        BULK 'trip_data_green_parquet/**',\n        DATA_SOURCE='nyc_taxi_data_raw',\n        FORMAT = 'PARQUET'\n    ) AS [t1]\n--checking if ou\n--Number of trips made by durations in minutes\nSELECT\n    top 100 lpep_pickup_datetime,lpep_dropoff_datetime,DATEDIFF(minute,lpep_pickup_datetime,lpep_dropoff_datetime) as no_of_minutes\nFROM\n    OPENROWSET(\n        BULK 'trip_data_green_parquet/year=2020/month=01',\n        DATA_SOURCE='nyc_taxi_data_raw',\n        FORMAT = 'PARQUET'\n    ) AS [t1];\n\n--Number of trips made by durations in hours\nSELECT\n    DATEDIFF(hour,lpep_pickup_datetime,lpep_dropoff_datetime) as from_hour,\n    DATEDIFF(hour,lpep_pickup_datetime,lpep_dropoff_datetime)+1 as to_hour,\n    count(*) as no_of_trips\nFROM\n    OPENROWSET(\n        BULK 'trip_data_green_parquet/**',\n        DATA_SOURCE='nyc_taxi_data_raw',\n        FORMAT = 'PARQUET'\n    ) AS [t1]\nwhere lpep_pickup_datetime<lpep_dropoff_datetime  -- this help to filter unwanted values before grouping the trips count\ngroup by DATEDIFF(hour,lpep_pickup_datetime,lpep_dropoff_datetime),\n    DATEDIFF(hour,lpep_pickup_datetime,lpep_dropoff_datetime)+1\norder by from_hour,to_hour;\n\n--others \n\nSELECT\n    DATEDIFF(MINUTE,lpep_pickup_datetime,lpep_dropoff_datetime)/60 as from_hour,\n    DATEDIFF(MINUTE,lpep_pickup_datetime,lpep_dropoff_datetime)/60 +1 as to_hour,\n    count(*) as no_of_trips\nFROM\n    OPENROWSET(\n        BULK 'trip_data_green_parquet/**',\n        DATA_SOURCE='nyc_taxi_data_raw',\n        FORMAT = 'PARQUET'\n    ) AS [t1]\ngroup by DATEDIFF(MINUTE,lpep_pickup_datetime,lpep_dropoff_datetime)/60,\n    DATEDIFF(MINUTE,lpep_pickup_datetime,lpep_dropoff_datetime)/60+1\norder by from_hour,to_hour;\n\n--hours wise no of trips completed \nSELECT\n    DATEDIFF(hour,lpep_pickup_datetime,lpep_dropoff_datetime) as hours_to_complete,\n    count(1) as no_of_trips\nFROM\n    OPENROWSET(\n        BULK 'trip_data_green_parquet/year=2020/month=01',\n        DATA_SOURCE='nyc_taxi_data_raw',\n        FORMAT = 'PARQUET'\n    ) AS [t1]\ngroup by DATEDIFF(hour,lpep_pickup_datetime,lpep_dropoff_datetime)\norder by hours_to_complete desc;",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_discovery",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

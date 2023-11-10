@@ -1,0 +1,20 @@
+{
+	"name": "11_data_quality_check",
+	"properties": {
+		"folder": {
+			"name": "nyc_taxi/discovery"
+		},
+		"content": {
+			"query": "--data quality check for total_amount column \nuse nyc_taxi_discovery;\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        BULK 'trip_data_green_parquet/**',\n        DATA_SOURCE='nyc_taxi_data_raw',\n        FORMAT = 'PARQUET'\n    ) AS [result]\n--checking qulaity of total_amount column \n--count() never counts nulls \nSELECT\n    count(1) as total_records,\n    count(total_amount) as total_count_of_total_amount_with_non_nulls,\n    min(total_amount) as min_total_amount,\n    max(total_amount) as max_total_amount,\n    avg(total_amount) as avg_total_amount\nFROM\n    OPENROWSET(\n        BULK 'trip_data_green_parquet/**',\n        DATA_SOURCE='nyc_taxi_data_raw',\n        FORMAT = 'PARQUET'\n    ) AS [result]\n\n\n\n--data quality issues with payment_type\nSELECT\n    payment_type,count(1) as no_of_records\n\n    FROM\n    OPENROWSET(\n        BULK 'trip_data_green_parquet/**',\n        DATA_SOURCE='nyc_taxi_data_raw',\n        FORMAT = 'PARQUET'\n    ) AS [result]\ngroup by payment_type\norder by payment_type;\n\n--now we can actaully replace nulls of payment_type to 'Unknown' type\nselect fixed_nulls_payment_type_col as payment_type,count(1) as records_count\nFROM\n(\nSELECT\n    VendorID,COALESCE(payment_type,5) as fixed_nulls_payment_type_col\nFROM\n    OPENROWSET(\n        BULK 'trip_data_green_parquet/**',\n        DATA_SOURCE='nyc_taxi_data_raw',\n        FORMAT = 'PARQUET'\n    ) as d\n)  as f\ngroup by fixed_nulls_payment_type_col \norder by fixed_nulls_payment_type_col;",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_discovery",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

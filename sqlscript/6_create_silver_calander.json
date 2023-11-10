@@ -1,0 +1,20 @@
+{
+	"name": "6_create_silver_calander",
+	"properties": {
+		"folder": {
+			"name": "nyc_taxi/ldw"
+		},
+		"content": {
+			"query": "use nyc_taxi_ldw\nGO\n--if EXISTS (select * from sys.external_tables where name ='calendar')\n  --  DROP EXTERNAL TABLE silver.calendar   --This is not a good way to drop table as schema info is missing .\nGo\nif OBJECT_ID('silver.calendar') is not null\n    DROP EXTERNAL TABLE silver.calendar\nGO\nCREATE EXTERNAL TABLE silver.calendar\n    WITH\n    (\n        data_source=nyc_taxi_src,\n        location='silver/calendar',\n        file_format=parquet_file_format,\n    )\nAS\nselect * FROM bronze.calendar\nGO\nselect * from silver.calendar\nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_ldw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

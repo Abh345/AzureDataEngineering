@@ -1,0 +1,20 @@
+{
+	"name": "9_explore_nyc_trip_data_green_delta",
+	"properties": {
+		"folder": {
+			"name": "nyc_taxi/discovery"
+		},
+		"content": {
+			"query": "use nyc_taxi_discovery;\n--reading delta\nSELECT\n     top 10 *\nFROM\n    OPENROWSET(\n        --BULK 'trip_data_green_delta/**',-- we cannot query folders and subfolders\n        BULK 'trip_data_green_delta/',\n        DATA_SOURCE='nyc_taxi_data_raw',\n        FORMAT = 'DELTA'\n    ) AS [result]\n\n--select only req, columns \nSELECT\n     top 10 *\nFROM\n    OPENROWSET(\n        --BULK 'trip_data_green_delta/**',-- we cannot query folders and subfolders\n        BULK 'trip_data_green_delta/',\n        DATA_SOURCE='nyc_taxi_data_raw',\n        FORMAT = 'DELTA'\n    ) \n    with(\n           tip_amount float,\n           trip_type int\n    ) as trip_data;\n\n\n\n--select only req, columns now we are inculding partision column \nSELECT\n     top 10 *\nFROM\n    OPENROWSET(\n        --BULK 'trip_data_green_delta/**',-- we cannot query folders and subfolders\n        BULK 'trip_data_green_delta/',\n        DATA_SOURCE='nyc_taxi_data_raw',\n        FORMAT = 'DELTA'\n    ) \n    with(\n           tip_amount float,\n           trip_type int,\n           year VARCHAR(4),\n           month VARCHAR(2)\n    ) as trip_data;\n\n\n--query on partision column \n\n\n--query on partition columns to redcue query run time\nSELECT\n     count(DISTINCT payment_type)\nFROM\n    OPENROWSET(\n        BULK 'trip_data_green_delta/',\n        DATA_SOURCE='nyc_taxi_data_raw',\n        FORMAT = 'DELTA'\n    ) as trip_data;\n\nSELECT\n     count(DISTINCT payment_type)\nFROM\n    OPENROWSET(\n        BULK 'trip_data_green_delta/',\n        DATA_SOURCE='nyc_taxi_data_raw',\n        FORMAT = 'DELTA'\n    ) as trip_data\n    where year=2020 and month =01\n    ;",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_discovery",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

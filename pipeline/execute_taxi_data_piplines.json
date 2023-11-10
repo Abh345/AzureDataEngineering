@@ -1,0 +1,62 @@
+{
+	"name": "execute_taxi_data_piplines",
+	"properties": {
+		"activities": [
+			{
+				"name": "create_silver_table_pipeline",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_create_silver_tables_usp",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "create_silver_table_trip_data_green",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pls_create_sliver_trip_data_green",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "create_gold_table",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "create_silver_table_trip_data_green",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "create_silver_table_pipeline",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pls_create_gold_trip_data_green",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2023-10-03T12:56:10Z"
+	},
+	"type": "Microsoft.Synapse/workspaces/pipelines"
+}
