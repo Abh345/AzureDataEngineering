@@ -1,0 +1,20 @@
+{
+	"name": "14_gold_trip_data_green_bus_req_1",
+	"properties": {
+		"folder": {
+			"name": "nyc_taxi/ldw"
+		},
+		"content": {
+			"query": "use nyc_taxi_ldw;\n\n/*with cte AS\n(    \nselect j1.payment_type,j1.borough, j1.trip_date,j1.year,j1.month,j2.day_name,\ncase when day_name in('Sunday','Saturday') then 'Y' else 'N' end as trip_day_weekend_ind from \n(\nselect payment_type,borough,CAST(lpep_pickup_datetime AS DATE) as trip_date,year,month FROM\n(SELECT * FROM silver.vw_silver_trip_data_green) as t1\nJOIN\n(select * from silver.taxi_zone) as d\non t1.pu_location_id=d.location_id\n) as j1 \ninner join \n(select year as y,month as m, day_name,date from silver.calendar) as j2 \non j1.trip_date=j2.date\n)\n select borough,day_name,trip_date,year,month,\n count(*) as total_trip,\n count(case when payment_type=1 then 1 end) as total_credit_card_trips,\n count(case when payment_type=2 then 1 end) as total_cash_trips,\n trip_day_weekend_ind\nfrom cte\nwhere payment_type=1 or payment_type=2  --optimization as we filtered out payment_type eailer for 1 and 2 so extra aggrtions will not happen \ngroup by borough,day_name,trip_date,year,month,trip_day_weekend_ind\nhaving year =2020 and month =01\n*/\n\n\nEXEC gold.usp_gold_trip_data_green '2020','01'\n\nEXEC gold.usp_gold_trip_data_green '2020','02'\nEXEC gold.usp_gold_trip_data_green '2020','03'\nEXEC gold.usp_gold_trip_data_green '2020','04'\nEXEC gold.usp_gold_trip_data_green '2020','05'\nEXEC gold.usp_gold_trip_data_green '2020','06'\nEXEC gold.usp_gold_trip_data_green '2020','07'\nEXEC gold.usp_gold_trip_data_green '2020','08'\nEXEC gold.usp_gold_trip_data_green '2020','09'\nEXEC gold.usp_gold_trip_data_green '2020','10'\nEXEC gold.usp_gold_trip_data_green '2020','11'\nEXEC gold.usp_gold_trip_data_green '2020','12'\nEXEC gold.usp_gold_trip_data_green '2021','01'\nEXEC gold.usp_gold_trip_data_green '2021','02'\nEXEC gold.usp_gold_trip_data_green '2021','03'\nEXEC gold.usp_gold_trip_data_green '2021','04'\nEXEC gold.usp_gold_trip_data_green '2021','05'\nEXEC gold.usp_gold_trip_data_green '2021','06'    --use ctrl_h to find and replace quickly\nEXEC gold.usp_gold_trip_data_green '2021','07'\n\n\n\n\n\n\n\n\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_ldw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

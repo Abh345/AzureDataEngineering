@@ -1,0 +1,20 @@
+{
+	"name": "10_check_for_duplicates",
+	"properties": {
+		"folder": {
+			"name": "nyc_taxi/discovery"
+		},
+		"content": {
+			"query": "--check for dupliactes \nuse nyc_taxi_discovery;\nSELECT\n    location_id,COUNT_BIG(1) as occurances \nFROM\n    OPENROWSET(\n        BULK 'https://synapseciurseadls.dfs.core.windows.net/nyc-taxi-data/raw/taxi_zone.csv',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW = TRUE,\n        FIELDTERMINATOR=',',\n        ROWTERMINATOR='\\n'\n    ) \n    WITH (\n           location_id SMALLINT 1,\n           borough VARCHAR(15) 2,\n           zone VARCHAR(50) 3,\n           service_zone VARCHAR(15) 4\n\n         )AS [result]\ngroup by location_id\nhaving COUNT_BIG(1)>1;\n\n\n--select taxi_zone data\nSELECT\n    * \nFROM\n    OPENROWSET(\n        BULK 'taxi_zone.csv',\n        DATA_SOURCE='nyc_taxi_data_raw',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        FIRSTROW = 2,\n        FIELDTERMINATOR=',',\n        ROWTERMINATOR='\\n'\n    ) \nWITH (\n           location_id SMALLINT 1, --renaming column using ordinal position \n           borough VARCHAR(15) 2,\n           zone VARCHAR(50) 3,\n           service_zone VARCHAR(15) 4\n\n         )AS [results]\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "master",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

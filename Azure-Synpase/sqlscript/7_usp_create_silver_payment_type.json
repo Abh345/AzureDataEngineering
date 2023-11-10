@@ -1,0 +1,20 @@
+{
+	"name": "7_usp_create_silver_payment_type",
+	"properties": {
+		"folder": {
+			"name": "nyc_taxi/ldw/user_defined_stored_procedure"
+		},
+		"content": {
+			"query": "use nyc_taxi_ldw\nGO\nCREATE OR ALTER PROCEDURE silver.usp_payment_type\nAS\nBEGIN\n    if OBJECT_ID('silver.payment_type') is not null\n        DROP EXTERNAL TABLE silver.payment_type;\n    CREATE EXTERNAL TABLE silver.payment_type\n        WITH\n        (\n            data_source=nyc_taxi_src,\n            location='silver/payment_type',\n            file_format=parquet_file_format,\n        )\n    AS\n    select * FROM bronze.vw_payment_type;\nEND",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_ldw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

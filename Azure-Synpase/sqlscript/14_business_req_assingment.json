@@ -1,0 +1,20 @@
+{
+	"name": "14_business_req_assingment",
+	"properties": {
+		"folder": {
+			"name": "nyc_taxi/discovery"
+		},
+		"content": {
+			"query": "use nyc_taxi_discovery;\nwith cte AS(\nSELECT\n      *\nFROM\n    OPENROWSET(\n        BULK 'trip_data_green_parquet/year=2021/month=01',\n        DATA_SOURCE='nyc_taxi_data_raw',\n        FORMAT = 'PARQUET'\n    ) AS [t1]\nJOIN\n(select  * from \n    OPENROWSET(\n        BULK 'taxi_zone.csv',\n        DATA_SOURCE='nyc_taxi_data_raw',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        FIRSTROW = 2,\n        FIELDTERMINATOR=',',\n        ROWTERMINATOR='\\n'\n    ) WITH(\n           location_id SMALLINT 1, --renaming column using ordinal position \n           borough VARCHAR(15) 2,\n           zone VARCHAR(50) 3,\n           service_zone VARCHAR(15) 4\n           )AS [t2]) as d\non t1.PULocationID=d.location_id\n)\nselect final_table.*,\ncast(ROUND(100.0*total_cash_trips/total_trip,2) as DECIMAL(9,2)) \nas cash_trip_percentage,\ncast(ROUND(100.0*total_credit_card_trips/total_trip,2) as DECIMAL(9,2)) \nas credit_card_trip_percentage\n FROM\n(select borough,\n count(*) as total_trip,\n count(case when payment_type=1 then 1 end) as total_credit_card_trips,\n count(case when payment_type=2 then 1 end) as total_cash_trips\nfrom cte\nwhere payment_type=1 or payment_type=2 \ngroup by borough\n) as final_table;\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_discovery",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

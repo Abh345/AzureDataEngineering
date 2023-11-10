@@ -1,0 +1,23 @@
+{
+	"name": "Main_trigger_pipeline",
+	"properties": {
+		"activities": [
+			{
+				"name": "MainPipeline",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "execute_taxi_data_piplines",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2023-10-03T12:56:22Z"
+	},
+	"type": "Microsoft.Synapse/workspaces/pipelines"
+}

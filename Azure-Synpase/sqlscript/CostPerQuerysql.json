@@ -1,0 +1,20 @@
+{
+	"name": "CostPerQuerysql",
+	"properties": {
+		"folder": {
+			"name": "utils"
+		},
+		"content": {
+			"query": "/*https://github.com/microsoft/Azure_Synapse_Toolbox/blob/master/TSQL_Queries/ServerlessSql/CostPerQuery.sql*/\nSELECT \n    ERH.query_text as [command],\n    ERH.status as [status],\n    ERH.login_name as [login_name],\n    ERH.start_time as [start_time],\n    ERH.end_time as [end_time],\n    ERH.total_elapsed_time_ms as [duration_ms],\n    /* Data processed =  data scanned + data moved + data written */\n    ERH.data_processed_mb as [data_processed_MB],\n    /* Cost management for serverless SQL pool\n    The amount of data processed is rounded up to the nearest MB per query. \n    Each query has a minimum of 10 MB of data processed. */\n    CASE WHEN ERH.data_processed_mb < 10 THEN 10 ELSE ERH.data_processed_mb END as [data_pricing_MB],\n    cast(ERH.total_elapsed_time_ms/1000.0 as decimal(12,2)) as [duration_sec],\n    /*$5 per 1TB scan, minimum 10M */\n    cast((CASE WHEN ERH.data_processed_mb < 10 THEN 10 ELSE ERH.data_processed_mb END)*5/100000.0 as decimal(19,7))  as cost_in_$,\n    ERH.command as [statement]\nFROM sys.dm_exec_requests_history ERH\nORDER BY ERH.start_time desc\n--order by cast((CASE WHEN ERH.data_processed_mb < 10 THEN 10 ELSE ERH.data_processed_mb END)*5/100000.0 as decimal(19,7)) desc",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "master",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

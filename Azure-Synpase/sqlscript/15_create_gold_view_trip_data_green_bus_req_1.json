@@ -1,0 +1,20 @@
+{
+	"name": "15_create_gold_view_trip_data_green_bus_req_1",
+	"properties": {
+		"folder": {
+			"name": "nyc_taxi/ldw"
+		},
+		"content": {
+			"query": "-- This is auto-generated code\nUSE nyc_taxi_ldw;\nDROP VIEW IF EXISTS gold.vw_gold_trip_data_green_bus_req_1\nGO\nCREATE VIEW gold.vw_gold_trip_data_green_bus_req_1\nAS\nSELECT\n    *\nFROM\n    OPENROWSET(\n        BULK 'gold/trip_data_green/**',\n        DATA_SOURCE='nyc_taxi_src',\n        FORMAT = 'PARQUET'\n    ) AS [result]\nGO\n\nSELECT top 10 * from gold.vw_gold_trip_data_green_bus_req_1 where year=2020 and month =01",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_ldw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

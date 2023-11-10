@@ -1,0 +1,20 @@
+{
+	"name": "10_create_silver_trip_type",
+	"properties": {
+		"folder": {
+			"name": "nyc_taxi/ldw"
+		},
+		"content": {
+			"query": "use nyc_taxi_ldw\nGO\n--if EXISTS (select * from sys.external_tables where name ='trip_type')\n  --  DROP EXTERNAL TABLE silver.trip_type\n\nif OBJECT_ID('silver.trip_type') is not null\n    DROP EXTERNAL TABLE silver.trip_type\nGO\nCREATE EXTERNAL TABLE silver.trip_type\n    WITH\n    (\n        data_source=nyc_taxi_src,\n        location='silver/trip_type',\n        file_format=parquet_file_format,\n    )\nAS\nselect * FROM bronze.trip_type\nGO\nselect * from silver.trip_type\nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_ldw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

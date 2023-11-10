@@ -1,0 +1,20 @@
+{
+	"name": "12_join_tables",
+	"properties": {
+		"folder": {
+			"name": "nyc_taxi/discovery"
+		},
+		"content": {
+			"query": "--identify the trips from each borough(we have to join trip_data with taxi_zone using location_id column)\nuse nyc_taxi_discovery;\n--Table 1\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        BULK 'trip_data_green_parquet/**',\n        DATA_SOURCE='nyc_taxi_data_raw',\n        FORMAT = 'PARQUET'\n    ) AS [t1]\n--checking if our joined key have any nulls or not \nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        BULK 'trip_data_green_parquet/**',\n        DATA_SOURCE='nyc_taxi_data_raw',\n        FORMAT = 'PARQUET'\n    ) AS [t1]\nwhere PULocationID is NULL;\n--Table-1 and Table-2 joining \nwith cte AS(\nSELECT\n     *\nFROM\n    OPENROWSET(\n        BULK 'trip_data_green_parquet/year=2020/month=01',\n        DATA_SOURCE='nyc_taxi_data_raw',\n        FORMAT = 'PARQUET'\n    ) AS [t1]\nJOIN\n(select * from \n    OPENROWSET(\n        BULK 'taxi_zone.csv',\n        DATA_SOURCE='nyc_taxi_data_raw',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        FIRSTROW = 2,\n        FIELDTERMINATOR=',',\n        ROWTERMINATOR='\\n'\n    ) WITH(\n           location_id SMALLINT 1, --renaming column using ordinal position \n           borough VARCHAR(15) 2,\n           zone VARCHAR(50) 3,\n           service_zone VARCHAR(15) 4\n           )AS [t2]) as d\non t1.PULocationID=d.location_id\n)\nSELECT borough,COUNT(1) as records from cte \ngroup by borough\nORDER BY records \n;",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_discovery",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

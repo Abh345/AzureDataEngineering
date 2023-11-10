@@ -1,0 +1,20 @@
+{
+	"name": "8_explore_nyc_trip_data_green_parquet",
+	"properties": {
+		"folder": {
+			"name": "nyc_taxi/discovery"
+		},
+		"content": {
+			"query": "-- This is auto-generated code\nuse nyc_taxi_discovery;\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        BULK 'trip_data_green_parquet/year=*/month=*/**',\n        DATA_SOURCE='nyc_taxi_data_raw',\n        FORMAT = 'PARQUET'\n    ) AS [result]\n--reading all data from folders and subfolders --way -1\nSELECT\n    COUNT_BIG(1) as count_records\nFROM\n    OPENROWSET(\n        BULK 'trip_data_green_parquet/year=*/month=*/**',\n        DATA_SOURCE='nyc_taxi_data_raw',\n        FORMAT = 'PARQUET'\n    ) AS [result]\n\n\n--select everyting inside folders and sub folders --way-2\nSELECT\n     TOP 100* \nFROM\n    OPENROWSET(\n        BULK 'trip_data_green_parquet/**',\n        DATA_SOURCE='nyc_taxi_data_raw',\n        FORMAT = 'PARQUET'\n    ) AS [result] order by VendorID desc;\n--use filename() and filepath()\n\nSELECT\n    TOP 100 VendorID,result.filepath(1) as year,result.filepath(2) as month  --,result.filename() as filenane\nFROM\n    OPENROWSET(\n        BULK 'trip_data_green_parquet/year=*/month=*/**',\n        DATA_SOURCE='nyc_taxi_data_raw',\n        FORMAT = 'PARQUET'\n    ) AS [result]\n    where result.filepath(1)=2021 and result.filepath(2)='02';\n\n--year wise record count \n\nSELECT\n    count(*) as year_wise_record_count,result.filepath(1) as year--,result.filename() as filenane\nFROM\n    OPENROWSET(\n        BULK 'trip_data_green_parquet/year=*/month=*/**',\n        DATA_SOURCE='nyc_taxi_data_raw',\n        FORMAT = 'PARQUET'\n    ) AS [result]\n    group by result.filepath(1);",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_discovery",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

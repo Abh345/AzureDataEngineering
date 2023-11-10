@@ -1,0 +1,20 @@
+{
+	"name": "3_create_external_file_format",
+	"properties": {
+		"folder": {
+			"name": "nyc_taxi/ldw"
+		},
+		"content": {
+			"query": "-- Create an external file format for DELIMITED (CSV/TSV) files.\nuse nyc_taxi_ldw;\nif not EXISTS(select * from sys.external_file_formats where name='cdv_file_format')\n    CREATE EXTERNAL FILE FORMAT cdv_file_format\n    WITH (\n            FORMAT_TYPE = DELIMITEDTEXT\n        , FORMAT_OPTIONS ( \n        FIELD_TERMINATOR = ','\n        , STRING_DELIMITER = '\"'\n        , FIRST_ROW = 2 -- ONLY AVAILABLE FOR AZURE SYNAPSE ANALYTICS\n        --, DATE_FORMAT = datetime_format\n        , USE_TYPE_DEFAULT = FALSE\n        , ENCODING = 'UTF8'\n        , PARSER_VERSION = '2.0'\n        ));\n\n--handling rejected values (with csv)\nif not EXISTS(select * from sys.external_file_formats where name='cdv_file_format_pv1')\n    CREATE EXTERNAL FILE FORMAT cdv_file_format_pv1\n    WITH (\n            FORMAT_TYPE = DELIMITEDTEXT\n        , FORMAT_OPTIONS ( \n        FIELD_TERMINATOR = ','\n        , STRING_DELIMITER = '\"'\n        , FIRST_ROW = 2 -- ONLY AVAILABLE FOR AZURE SYNAPSE ANALYTICS\n        --, DATE_FORMAT = datetime_format\n        , USE_TYPE_DEFAULT = FALSE\n        , ENCODING = 'UTF8'\n        , PARSER_VERSION = '1.0'\n        ));\n--handling rejected values (with tsv)\n--parser version 2.0\nif not EXISTS(select * from sys.external_file_formats where name='tsv_file_format')\n    CREATE EXTERNAL FILE FORMAT tsv_file_format\n    WITH (\n        FORMAT_TYPE = DELIMITEDTEXT\n        , FORMAT_OPTIONS ( \n        FIELD_TERMINATOR = '\\t'\n        , STRING_DELIMITER = '\"'\n        , FIRST_ROW = 2 -- ONLY AVAILABLE FOR AZURE SYNAPSE ANALYTICS\n        --, DATE_FORMAT = datetime_format\n        , USE_TYPE_DEFAULT = FALSE\n        , ENCODING = 'UTF8'\n        , PARSER_VERSION = '2.0'\n        ));\n\n--parser version 1.0\nif not EXISTS(select * from sys.external_file_formats where name='tsv_file_format_pv1')\n    CREATE EXTERNAL FILE FORMAT tsv_file_format_pv1\n    WITH (\n        FORMAT_TYPE = DELIMITEDTEXT\n        , FORMAT_OPTIONS ( \n        FIELD_TERMINATOR = '\\t'\n        , STRING_DELIMITER = '\"'\n        , FIRST_ROW = 2 -- ONLY AVAILABLE FOR AZURE SYNAPSE ANALYTICS\n        --, DATE_FORMAT = datetime_format\n        , USE_TYPE_DEFAULT = FALSE\n        , ENCODING = 'UTF8'\n        , PARSER_VERSION = '1.0'\n        ));\n--create parquet_file_format\nif not EXISTS(select * from sys.external_file_formats where name='parquet_file_format')\n    CREATE EXTERNAL FILE FORMAT parquet_file_format\n    WITH (\n        FORMAT_TYPE = PARQUET,\n        DATA_COMPRESSION='org.apache.hadoop.io.compress.SnappyCodec'\n        );\n\n--create delta file format \nif not EXISTS(select * from sys.external_file_formats where name='delta_file_format')\n    CREATE EXTERNAL FILE FORMAT delta_file_format\n    WITH (\n            FORMAT_TYPE = DELTA\n        );",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_ldw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

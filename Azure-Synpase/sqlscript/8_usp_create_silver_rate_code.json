@@ -1,0 +1,20 @@
+{
+	"name": "8_usp_create_silver_rate_code",
+	"properties": {
+		"folder": {
+			"name": "nyc_taxi/ldw/user_defined_stored_procedure"
+		},
+		"content": {
+			"query": "use nyc_taxi_ldw\nGO\nCREATE OR ALTER PROCEDURE silver.usp_rate_code\nAS\nBEGIN\n    if OBJECT_ID('silver.rate_code') is not null\n        DROP EXTERNAL TABLE silver.rate_code;\n    CREATE EXTERNAL TABLE silver.rate_code\n        WITH\n        (\n            data_source=nyc_taxi_src,\n            location='silver/rate_code',\n            file_format=parquet_file_format,\n        )\n    AS\n    select * FROM bronze.vw_rate_code;\nEND",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_ldw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
