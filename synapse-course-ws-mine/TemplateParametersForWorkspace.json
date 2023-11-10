@@ -1,0 +1,24 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"workspaceName": {
+			"value": "synapse-course-ws-mine"
+		},
+		"ls_serverless_sql_pool_db_nyc_taxi_ldw_connectionString": {
+			"value": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=tcp:synapse-course-ws-mine-ondemand.sql.azuresynapse.net,1433;Initial Catalog=nyc_taxi_ldw"
+		},
+		"synapse-course-ws-mine-WorkspaceDefaultSqlServer_connectionString": {
+			"value": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=tcp:synapse-course-ws-mine.sql.azuresynapse.net,1433;Initial Catalog=@{linkedService().DBName}"
+		},
+		"bing-covid-19-data_sasUri": {
+			"value": ""
+		},
+		"lssynapsecoursedl_properties_typeProperties_url": {
+			"value": "https://synapseciurseadls.dfs.core.windows.net/"
+		},
+		"synapse-course-ws-mine-WorkspaceDefaultStorage_properties_typeProperties_url": {
+			"value": "https://synapseciurseadls.dfs.core.windows.net"
+		}
+	}
+}
